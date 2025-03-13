@@ -51,10 +51,10 @@ jobs:
       - name: Checkout and Update Kustomization File
         run: |
           # Clone the manifests repo
-          git clone https://x-access-token:${{ secrets.MANIFESTS_REPO_TOKEN }}@github.com/SunBha/preview-env-manifests.git kustomize-preview-app
+          git clone https://x-access-token:${{ secrets.MANIFESTS_REPO_TOKEN }}@github.com/SunBha/preview-env-manifests.git preview-env-manifests
           
           # Navigate into the repo
-          cd kustomize-preview-app
+          cd preview-env-manifests/kustomize-preview-app
 
           # Verify if kustomization.yaml exists
           if [ -f "kustomization.yaml" ]; then
