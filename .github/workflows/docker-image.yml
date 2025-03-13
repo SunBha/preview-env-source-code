@@ -37,11 +37,7 @@ jobs:
       - name: Checkout and Update Kustomization File
         run: |
           git clone https://x-access-token:${{ secrets.MANIFESTS_REPO_TOKEN }}@github.com/SunBha/preview-env-manifests.git preview-env-manifests
-          cd preview-env-manifests
-          BRANCH_NAME="preview-pr-${PR_NUMBER}"
-          git checkout -b $BRANCH_NAME
-
-          cd kustomize-preview-app
+          cd preview-env-manifests/kustomize-preview-app
           if [ -f "kustomization.yaml" ]; then
             echo "✅ Found kustomization.yaml, updating..."
             sed -i "s|newTag:.*|newTag: ${SHORT_SHA}|" kustomization.yaml
@@ -53,4 +49,4 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git commit -am "Update image tag to ${SHORT_SHA} for PR-${PR_NUMBER}"
-          git push --set-upstream origin $BRANCH_NAME
+          git push
