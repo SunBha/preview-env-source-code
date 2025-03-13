@@ -30,4 +30,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: kostiscodefresh/my-preview-app:${{ env.SHORT_SHA }}
+          tags: bhatiasunny/my-preview-app:${{ env.SHORT_SHA }}
