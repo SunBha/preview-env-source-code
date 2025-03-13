@@ -18,4 +18,4 @@ steps:
     working_directory: "${{clone}}"
     tag: "${{CF_SHORT_REVISION}}"
     dockerfile: "Dockerfile"
-    stage: "build"
+    stage: "build22"
