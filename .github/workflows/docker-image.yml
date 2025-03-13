@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-    types: [ labeled ]
+    types: [labeled]
 
 jobs:
   build:
@@ -15,8 +15,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Short Revision
-        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - name: Set Environment Variables
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -34,13 +36,12 @@ jobs:
 
       - name: Checkout and Update Kustomization File
         run: |
-          # Clone the manifests repo
           git clone https://x-access-token:${{ secrets.MANIFESTS_REPO_TOKEN }}@github.com/SunBha/preview-env-manifests.git preview-env-manifests
-          
-          # Navigate into the repo
-          cd preview-env-manifests/kustomize-preview-app
+          cd preview-env-manifests
+          BRANCH_NAME="preview-pr-${PR_NUMBER}"
+          git checkout -b $BRANCH_NAME
 
-          # Verify if kustomization.yaml exists
+          cd kustomize-preview-app
           if [ -f "kustomization.yaml" ]; then
             echo "✅ Found kustomization.yaml, updating..."
             sed -i "s|newTag:.*|newTag: ${SHORT_SHA}|" kustomization.yaml
@@ -49,8 +50,7 @@ jobs:
             exit 1
           fi
 
-          # Commit and push changes
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git commit -am "Update image tag to ${SHORT_SHA}"
-          git push
+          git commit -am "Update image tag to ${SHORT_SHA} for PR-${PR_NUMBER}"
+          git push --set-upstream origin $BRANCH_NAME
