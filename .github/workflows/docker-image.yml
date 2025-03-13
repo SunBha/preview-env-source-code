@@ -32,18 +32,41 @@ jobs:
           push: true
           tags: bhatiasunny/my-preview-app:${{ env.SHORT_SHA }}
 
-      - name: Checkout Manifests Repo
-        uses: actions/checkout@v4
-        with:
-          repository: SunBha/preview-env-manifests
-          token: ${{ secrets.MANIFESTS_REPO_TOKEN }}
-          path: kustomize-preview-app
+      # - name: Checkout Manifests Repo
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: SunBha/preview-env-manifests
+      #     token: ${{ secrets.MANIFESTS_REPO_TOKEN }}
+      #     path: kustomize-preview-app
 
-      - name: Update Kustomization File
+      # - name: Update Kustomization File
+      #   run: |
+      #     cd kustomize-preview-app
+      #     sed -i "s|newTag:.*|newTag: $SHORT_SHA|" kustomization.yaml
+      #     git config --global user.name "github-actions"
+      #     git config --global user.email "github-actions@github.com"
+      #     git commit -am "Update image tag to $SHORT_SHA"
+      #     git push
+
+      - name: Checkout and Update Kustomization File
         run: |
+          # Clone the manifests repo
+          git clone https://x-access-token:${{ secrets.MANIFESTS_REPO_TOKEN }}@github.com/SunBha/preview-env-manifests.git kustomize-preview-app
+          
+          # Navigate into the repo
           cd kustomize-preview-app
-          sed -i "s|newTag:.*|newTag: $SHORT_SHA|" kustomization.yaml
+
+          # Verify if kustomization.yaml exists
+          if [ -f "kustomization.yaml" ]; then
+            echo "✅ Found kustomization.yaml, updating..."
+            sed -i "s|newTag:.*|newTag: ${SHORT_SHA}|" kustomization.yaml
+          else
+            echo "❌ ERROR: kustomization.yaml not found!"
+            exit 1
+          fi
+
+          # Commit and push changes
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git commit -am "Update image tag to $SHORT_SHA"
+          git commit -am "Update image tag to ${SHORT_SHA}"
           git push
