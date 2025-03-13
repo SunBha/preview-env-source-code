@@ -31,3 +31,19 @@ jobs:
           file: Dockerfile
           push: true
           tags: bhatiasunny/my-preview-app:${{ env.SHORT_SHA }}
+
+      - name: Checkout Manifests Repo
+        uses: actions/checkout@v4
+        with:
+          repository: SunBha/preview-env-manifests
+          token: ${{ secrets.MANIFESTS_REPO_TOKEN }}
+          path: kustomize-preview-app
+
+      - name: Update Kustomization File
+        run: |
+          cd kustomize-preview-app
+          sed -i "s|newTag:.*|newTag: $SHORT_SHA|" kustomization.yaml
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git commit -am "Update image tag to $SHORT_SHA"
+          git push
