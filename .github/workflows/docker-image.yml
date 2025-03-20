@@ -46,12 +46,12 @@ jobs:
           cd kustomize-preview-app
           if [ -f "kustomization.yaml" ]; then
             echo "✅ Found kustomization.yaml, updating..."
-            sed -i "s|newTag:.*|newTag: ${SHORT_SHA}|" kustomization.yaml
+            sed -i "s|newTag:.*|newTag: ${{ env.SHORT_SHA }}|" kustomization.yaml
           else
             echo "❌ ERROR: kustomization.yaml not found!"
             exit 1
           fi
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git commit -am "Update image tag to ${SHORT_SHA} for PR-${PR_NUMBER}"
+          git commit -am "Update image tag to ${{ env.SHORT_SHA }} for PR-${{ env.PR_NUMBER }}"
           git push origin HEAD:${GITHUB_REF#refs/heads/}
