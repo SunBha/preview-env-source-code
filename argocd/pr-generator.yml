@@ -23,8 +23,7 @@ spec:
     spec:
       source:
         repoURL: 'https://github.com/SunBha/preview-env-source-code.git'
-        targetRevision: main
-        # 'preview-pr-{{.number}}'
+        targetRevision: 'preview-pr-{{.number}}'
         path: kustomize-preview-app/ 
         kustomize:
           images:
