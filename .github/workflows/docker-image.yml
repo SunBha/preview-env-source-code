@@ -1,13 +1,13 @@
 name: Build and Push Docker Image
 
 on:
-  # push:
-  #   branches-ignore:
-  #     - main
-  pull_request:
-    branches:
+  push:
+    branches-ignore:
       - main
-    types: [labeled]
+  # pull_request:
+  #   branches:
+  #     - main
+  #   types: [labeled]
 
 jobs:
   build:
