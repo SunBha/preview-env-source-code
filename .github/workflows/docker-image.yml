@@ -72,4 +72,4 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git add kustomization.yaml
           git commit -m "Update image tag to ${{ env.SHORT_SHA }} for PR-${{ env.PR_NUMBER }}"
-          git push origin HEAD:${GITHUB_REF#refs/heads/}
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
