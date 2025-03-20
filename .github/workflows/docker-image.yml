@@ -74,9 +74,18 @@ jobs:
           # Configure git to use HTTPS
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           
+          # Stash our changes
+          git stash
+          
           # Pull latest changes
           git pull origin ${{ github.event.pull_request.head.ref }} --rebase
           
+          # Apply our stashed changes
+          git stash pop
+          
+          # Add and commit our changes
           git add kustomization.yaml
           git commit -m "Update image tag to ${{ env.SHORT_SHA }} for PR-${{ env.PR_NUMBER }}"
+          
+          # Push changes
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
