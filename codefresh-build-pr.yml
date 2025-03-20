@@ -4,7 +4,7 @@ stages:
   - "build"
 steps:
   clone:
-    title: "Cloning repository into git"
+    title: "Cloning repository into git bbb"
     type: "git-clone"
     repo: "kostis-codefresh/preview-env-source-code"
     revision: "${{CF_REVISION}}"
