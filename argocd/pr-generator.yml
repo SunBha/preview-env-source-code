@@ -30,7 +30,7 @@ spec:
         path: kustomize-preview-app/ 
         kustomize:
           images:
-            - 'docker.io/bhatiasunny/my-preview-app:pr-{{.number}}-{{.head_short_sha_7}}'
+            - 'docker.io/bhatiasunny/my-preview-app:pr-{{.number}}-{{.head.sha}}'
       project: "default"
       destination:
         server: https://kubernetes.default.svc
