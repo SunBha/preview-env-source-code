@@ -23,11 +23,11 @@ spec:
     spec:
       source:
         repoURL: 'https://github.com/SunBha/preview-env-source-code.git'
-        targetRevision: 'preview-pr-{{.number}}'
+        targetRevision: '{{.head_branch}}'
         path: kustomize-preview-app/ 
         kustomize:
           images:
-            - 'docker.io/bhatiasunny/my-preview-app:{{.head_short_sha_7}}'
+            - 'docker.io/bhatiasunny/my-preview-app:{{.head_sha}}'
       project: "default"
       destination:
         server: https://kubernetes.default.svc
