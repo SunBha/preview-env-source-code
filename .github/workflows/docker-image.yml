@@ -5,9 +5,9 @@ on:
   #   branches-ignore:
   #     - main
   pull_request:
+    types: [opened, labeled]
     branches:
       - main
-    types: [labeled]
 
 jobs:
   build:
@@ -18,7 +18,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # echo "PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
       - name: Add Preview Label
+        if: github.event.action == 'opened'
         uses: actions/github-script@v7
         with:
           script: |
@@ -29,7 +31,6 @@ jobs:
               labels: ['preview']
             })
 
-      # echo "PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
       - name: Set Environment Variables
         run: |
           echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
