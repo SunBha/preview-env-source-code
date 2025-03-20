@@ -70,6 +70,13 @@ jobs:
           
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+          
+          # Configure git to use HTTPS
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          
+          # Pull latest changes
+          git pull origin ${{ github.event.pull_request.head.ref }} --rebase
+          
           git add kustomization.yaml
           git commit -m "Update image tag to ${{ env.SHORT_SHA }} for PR-${{ env.PR_NUMBER }}"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
