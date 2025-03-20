@@ -47,3 +47,7 @@ jobs:
             echo "❌ ERROR: kustomization.yaml not found!"
             exit 1
           fi
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git commit -am "Update image tag to ${SHORT_SHA} for PR-${PR_NUMBER}"
+          git push
