@@ -51,7 +51,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: bhatiasunny/my-preview-app:${{ env.SHORT_SHA }}
+          tags: bhatiasunny/my-preview-app:pr-${{ env.PR_NUMBER }}-${{ env.SHORT_SHA }}
 
       - name: Checkout and Update Kustomization File
         run: |
@@ -72,7 +72,7 @@ jobs:
           if [ -f "kustomization.yaml" ]; then
             echo "✅ Found kustomization.yaml, updating..."
             # Using a more specific sed pattern
-            sed -i "s|newTag:.*|newTag: ${{ env.SHORT_SHA }}|g" kustomization.yaml
+            sed -i "s|newTag:.*|newTag: pr-${{ env.PR_NUMBER }}-${{ env.SHORT_SHA }}|g" kustomization.yaml
             echo "Contents of kustomization.yaml after update:"
             cat kustomization.yaml
           else
@@ -97,7 +97,7 @@ jobs:
           
           # Add and commit our changes
           git add kustomization.yaml
-          git commit -m "Update image tag to ${{ env.SHORT_SHA }} for PR-${{ env.PR_NUMBER }}"
+          git commit -m "Update image tag to pr-${{ env.PR_NUMBER }}-${{ env.SHORT_SHA }} for PR-${{ env.PR_NUMBER }}"
           
           # Push changes
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
