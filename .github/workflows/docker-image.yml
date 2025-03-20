@@ -5,18 +5,24 @@ on:
   #   branches-ignore:
   #     - main
   pull_request:
-    types: [opened, labeled]
+    types: [opened, synchronize, reopened]
     branches:
       - main
 
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: bhatiasunny/my-preview-app
+
 jobs:
-  build:
-    name: Build Docker Image
+  build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       # echo "PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
       - name: Add Preview Label
@@ -31,75 +37,34 @@ jobs:
               labels: ['preview']
             })
 
-      - name: Set Environment Variables
-        run: |
-          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-          echo "FULL_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
-          echo "Current branch: ${GITHUB_REF#refs/heads/}"
-          echo "SHORT_SHA=$(git rev-parse --short HEAD)"
-          echo "PR_NUMBER=${{ github.event.pull_request.number }}"
-          echo "FULL_SHA=${{ github.event.pull_request.head.sha }}"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
+      - name: Extract PR number
+        id: pr
+        run: echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Get PR head SHA
+        id: sha
+        run: echo "HEAD_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
         with:
           context: .
-          file: Dockerfile
           push: true
-          tags: bhatiasunny/my-preview-app:pr-${{ env.PR_NUMBER }}-${{ env.FULL_SHA }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ env.PR_NUMBER }}-${{ env.HEAD_SHA }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Checkout and Update Kustomization File
+      - name: Update kustomization.yaml
         run: |
-          pwd
-          ls -la
-          echo "Current directory contents:"
-          ls -la kustomize-preview-app || echo "kustomize-preview-app directory not found"
-          
-          if [ ! -d "kustomize-preview-app" ]; then
-            echo "❌ ERROR: kustomize-preview-app directory not found!"
-            exit 1
-          fi
-          
           cd kustomize-preview-app
-          echo "Contents of kustomization.yaml before update:"
+          kustomize edit set image docker.io/bhatiasunny/my-preview-app=docker.io/bhatiasunny/my-preview-app:pr-${{ env.PR_NUMBER }}-${{ env.HEAD_SHA }}
           cat kustomization.yaml
-          
-          if [ -f "kustomization.yaml" ]; then
-            echo "✅ Found kustomization.yaml, updating..."
-            # Using a more specific sed pattern
-            sed -i "s|newTag:.*|newTag: pr-${{ env.PR_NUMBER }}-${{ env.FULL_SHA }}|g" kustomization.yaml
-            echo "Contents of kustomization.yaml after update:"
-            cat kustomization.yaml
-          else
-            echo "❌ ERROR: kustomization.yaml not found!"
-            exit 1
-          fi
-          
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          
-          # Configure git to use HTTPS
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          
-          # Stash our changes
-          git stash
-          
-          # Pull latest changes
-          git pull origin ${{ github.event.pull_request.head.ref }} --rebase
-          
-          # Apply our stashed changes
-          git stash pop
-          
-          # Add and commit our changes
-          git add kustomization.yaml
-          git commit -m "Update image tag to pr-${{ env.PR_NUMBER }}-${{ env.FULL_SHA }} for PR-${{ env.PR_NUMBER }}"
-          
-          # Push changes
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
