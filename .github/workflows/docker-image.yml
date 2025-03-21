@@ -53,8 +53,6 @@ jobs:
           file: Dockerfile
           push: true
           tags: bhatiasunny/my-preview-app:pr-${{ env.PR_NUMBER }}-${{ env.FULL_SHA }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Checkout and Update Kustomization File
         run: |
