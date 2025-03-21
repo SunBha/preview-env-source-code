@@ -5,7 +5,7 @@ on:
   #   branches-ignore:
   #     - main
   pull_request:
-    types: [opened, labeled]
+    types: [opened, labeled, reopened]
     branches:
       - main
 
