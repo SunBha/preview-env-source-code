@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: preview-apps
+  namespace: argocd
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: preview-apps
+  source:
+    path: kustomize-preview-app/
+    repoURL: 'https://github.com/SunBha/preview-env-source-code.git'
+    targetRevision: main
+    kustomize:
+      images:
+        - docker.io/bhatiasunny/my-preview-app:main-latest
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true 
