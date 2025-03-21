@@ -18,7 +18,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # echo "PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
       - name: Add Preview Label
         if: github.event.action == 'opened'
         uses: actions/github-script@v7
