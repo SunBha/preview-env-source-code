@@ -11,31 +11,32 @@ spec:
       github:
         owner: sunbha
         repo: preview-env-source-code
-      tokenRef:
-        secretName: argocd-token
-        key: token
-      labels:
-        - preview
+        api: https://api.github.com/
+        tokenRef:
+          secretName: argocd-token
+          key: token
+        labels:
+          - preview
       requeueAfterSeconds: 180
   template:
     metadata:
       name: 'myapp-pr-{{.number}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: "0"
+        argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     spec:
       source:
         repoURL: 'https://github.com/SunBha/preview-env-source-code.git'
-        targetRevision: main
-        # 'preview-pr-{{.number}}'
-        path: kustomize-preview-app/ 
-        kustomize:
-          images:
-            - 'docker.io/bhatiasunny/my-preview-app:{{.head_short_sha_7}}'
+        targetRevision: '{{.branch}}'
+        path: kustomize-preview-app/
       project: "default"
       destination:
         server: https://kubernetes.default.svc
         namespace: 'preview-pr-{{.number}}'
       syncPolicy:
         automated:
-          prune: true  
+          prune: true
           selfHeal: true
         syncOptions:
         - CreateNamespace=true
+        - RespectIgnoreDifferences=true
