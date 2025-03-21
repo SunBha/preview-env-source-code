@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine3.18 AS build-env
+FROM golang:1.21-alpine3.21 AS build-env
 
 WORKDIR /tmp/workdir
 
@@ -6,7 +6,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build 
 
-FROM alpine:3.20
+FROM alpine:3.21
 
 EXPOSE 8080
 
