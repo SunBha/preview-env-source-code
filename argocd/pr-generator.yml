@@ -28,7 +28,7 @@ spec:
       source:
         repoURL: 'https://github.com/SunBha/preview-env-source-code.git'
         targetRevision: '{{.branch}}'
-        path: kustomize-preview-app/ 
+        path: preview-kustomize/ 
       project: "default"
       destination:
         server: https://kubernetes.default.svc

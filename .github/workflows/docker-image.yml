@@ -63,25 +63,14 @@ jobs:
           push: true
           tags: bhatiasunny/my-preview-app:pr-${{ env.PR_NUMBER }}-${{ env.FULL_SHA }}
 
-      - name: Checkout and Update Kustomization File
+      - name: Update Preview Kustomization
         run: |
-          pwd
-          ls -la
-          echo "Current directory contents:"
-          ls -la kustomize-preview-app || echo "kustomize-preview-app directory not found"
-          
-          if [ ! -d "kustomize-preview-app" ]; then
-            echo "❌ ERROR: kustomize-preview-app directory not found!"
-            exit 1
-          fi
-          
-          cd kustomize-preview-app
+          cd preview-kustomize
           echo "Contents of kustomization.yaml before update:"
           cat kustomization.yaml
           
           if [ -f "kustomization.yaml" ]; then
             echo "✅ Found kustomization.yaml, updating..."
-            # Using a more specific sed pattern
             sed -i "s|newTag:.*|newTag: pr-${{ env.PR_NUMBER }}-${{ env.FULL_SHA }}|g" kustomization.yaml
             echo "Contents of kustomization.yaml after update:"
             cat kustomization.yaml
@@ -93,21 +82,6 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           
-          # Configure git to use HTTPS
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          
-          # Stash our changes
-          git stash
-          
-          # Pull latest changes
-          git pull origin ${{ github.event.pull_request.head.ref }} --rebase
-          
-          # Apply our stashed changes
-          git stash pop
-          
-          # Add and commit our changes
           git add kustomization.yaml
-          git commit -m "Update image tag to pr-${{ env.PR_NUMBER }}-${{ env.FULL_SHA }} for PR-${{ env.PR_NUMBER }}"
-          
-          # Push changes
+          git commit -m "Update preview image tag to pr-${{ env.PR_NUMBER }}-${{ env.FULL_SHA }} for PR-${{ env.PR_NUMBER }}"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
