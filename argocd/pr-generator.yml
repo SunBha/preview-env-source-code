@@ -17,12 +17,13 @@ spec:
           key: token
         labels:
           - preview
-      requeueAfterSeconds: 30
+      requeueAfterSeconds: 180  # Increased to 3 minutes to allow GitHub Actions to complete
   template:
     metadata:
       name: 'myapp-pr-{{.number}}'
       annotations:
         argocd.argoproj.io/sync-wave: "0"
+        argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     spec:
       source:
         repoURL: 'https://github.com/SunBha/preview-env-source-code.git'
@@ -37,7 +38,15 @@ spec:
         namespace: 'preview-pr-{{.number}}'
       syncPolicy:
         automated:
-          prune: true  
+          prune: true
           selfHeal: true
+          allowEmpty: true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
         syncOptions:
         - CreateNamespace=true
+        - RespectIgnoreDifferences=true
