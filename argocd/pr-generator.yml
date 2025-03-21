@@ -29,9 +29,6 @@ spec:
         repoURL: 'https://github.com/SunBha/preview-env-source-code.git'
         targetRevision: '{{.branch}}'
         path: kustomize-preview-app/ 
-        kustomize:
-          images:
-            - 'docker.io/bhatiasunny/my-preview-app:pr-{{.number}}-{{.head_sha}}'
       project: "default"
       destination:
         server: https://kubernetes.default.svc
@@ -40,13 +37,6 @@ spec:
         automated:
           prune: true
           selfHeal: true
-          allowEmpty: true
-        retry:
-          limit: 5
-          backoff:
-            duration: 5s
-            factor: 2
-            maxDuration: 3m
         syncOptions:
         - CreateNamespace=true
         - RespectIgnoreDifferences=true
