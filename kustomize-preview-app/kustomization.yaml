@@ -7,4 +7,4 @@ resources:
 
 images:
 - name: docker.io/bhatiasunny/my-preview-app
-  newTag: pr-52-a4f1d44cd0659df6818dcfad8f588b67c04a002e
+  newTag: pr-52-d49c76fb55cde684c23e3e76c9b1d297c80e4f72
