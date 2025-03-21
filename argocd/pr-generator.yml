@@ -17,7 +17,7 @@ spec:
           key: token
         labels:
           - preview
-      requeueAfterSeconds: 180  # Increased to 3 minutes to allow GitHub Actions to complete
+      requeueAfterSeconds: 180
   template:
     metadata:
       name: 'myapp-pr-{{.number}}'
@@ -28,7 +28,7 @@ spec:
       source:
         repoURL: 'https://github.com/SunBha/preview-env-source-code.git'
         targetRevision: '{{.branch}}'
-        path: preview-kustomize/ 
+        path: kustomize-preview-app/
       project: "default"
       destination:
         server: https://kubernetes.default.svc
